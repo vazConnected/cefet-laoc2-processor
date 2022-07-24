@@ -1,0 +1,14 @@
+DEPTH = 32;
+WIDTH = 16;
+
+ADDRESS_RADIX = DEC; % Address and value radixes are required %
+DATA_RADIX = DEC;    % Enter BIN, DEC, HEX, OCT, or UNS; unless %
+
+CONTENT
+BEGIN
+0 : 0;
+1 : 0;
+2 : 0;
+3 : 4;
+[4..31] : 0;
+END;
