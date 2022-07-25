@@ -1,11 +1,11 @@
 /*
- * Laboratório de Arquitetura e Organização de Computadores II
+ * Laboratorio de Arquitetura e Organizacao de Computadores II
  *
  * Estudantes:
  * 	Pedro Vaz
  * 	Roberto Gontijo
  *
- * Prática II - Processador
+ * Pratica II - Processador
  */
 
 /*
@@ -16,10 +16,10 @@
  * 	clock = KEY[0];
  *
  * Outputs:
- * 	H1|H0 : dados de saída lidos da memória ram
- * 	H3|H2 : não utilizado
- * 	H5|H4 : dados de entrada a serem escritos na memória
- * 	H7|H6 : endereço da memória para leitura ou escrita
+ * 	H1|H0 : dados de saida lidos da memoria ram
+ * 	H3|H2 : nao utilizado
+ * 	H5|H4 : dados de entrada a serem escritos na memoria
+ * 	H7|H6 : endereco da memoria para leitura ou escrita
  *
  * Mapeamento de bits:
  * 	Palavra: 16 bits
@@ -34,7 +34,7 @@
  * 		- Banco de registradores
  *
  * Instrucoes:
- * 	- LOAD, STORE, MVNZ, MV, MVI, ADD, SUB, OR, SLT, SLL, SRL 
+ * 	- LD, ST, MVNZ, MV, MVI, ADD, SUB, OR, SLT, SLL, SRL 
  * 
  */
 
@@ -48,12 +48,12 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 	output [0:6] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5, HEX6, HEX7;
 	
 	reg Ain, Gin, Gout, AddSub, auxULA, wren, imediato, mem_out_flag;
-	reg [15:0] in = 0; // Entrada da memória RAM
+	reg [15:0] in = 0; // Entrada da memoria RAM
 	reg [11:0] MUXsel = 0;
 	reg [7:0] PC = 0;
 	reg [15:0] reg_auxULA = 0;
-	reg [7:0] Rout  = 0, Rin = 0; // Para armazenar referências Xreg e Yreg na forma 0b*1*
-	wire [15:0] out; // Saída da memória RAM
+	reg [7:0] Rout  = 0, Rin = 0; // Para armazenar referencias Xreg e Yreg na forma 0b*1*
+	wire [15:0] out; // Saida da memoria RAM
 	wire [15:0] result;
 	
 	integer incr_pc = 0;
@@ -61,7 +61,7 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 	integer num_ciclos = 0;
 	
 	// Wires
-	// R7 Registrador de instrução: 4b - Nome instrução | 6 bit - Número do registrador | 6 bit - Dado ou número do registrador
+	// R7 Registrador de instrucao: 4b - Nome instrucao | 6 bit - Numero do registrador | 6 bit - Dado ou numero do registrador
 	wire [15:0] R[0:7];
 	wire [7:0] Xreg, Yreg;
 	wire [15:0] A, G;
@@ -74,7 +74,7 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 	assign run = SW[0];
 	assign resetn = SW[1];
 
-	// TLB: mapear endereco virtual para endereço físico 
+	// TLB: mapear endereco virtual para endereco fisico 
 	reg [15:0] tlb [0:3]; // Registradores totalmente associativos
 
 	initial begin
@@ -101,20 +101,20 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 	localparam timeStep3 = 3'b011;
 	localparam timeStep4 = 3'b100;
 
-	localparam LOAD = 4'b0001; // LOAD (LD) - LD Rx, Mem(Ry) -> Rx = Mem(Ry)
-	localparam STORE = 4'b0010; // STORE (ST) - ST Rx, Ry -> Mem(Ry) = Rx
-	localparam MVNZ = 4'b0011; // MVNZ - if G1!=0, Rx = Ry
-	localparam MV = 4'b0100; // MV -> Rx = Ry -> address
-	localparam MVI = 4'b0101; // MVI - Rx = NUM
-	localparam ADD = 4'b0110; // ADD - Rx = Rx + Ry
-	localparam SUB = 4'b0111; // SUB - Rx = Rx - Ry
-	localparam OR = 4'b1000; // OR  - Rx = Rx || Ry
-	localparam SLT = 4'b1001; // SLT - if(Rx < Ry) Rx = 1 else Rx = 0 
-	localparam SLL = 4'b1010; // SLL - Rx = Rx << Ry
-	localparam SRL = 4'b1011; // SRL - Rx = Rx >> Ry
+	localparam LOAD = 4'b0001; // LD: Rx <- [[Ry]]
+	localparam STORE = 4'b0010; // ST: [Ry] <- [Rx]
+	localparam MVNZ = 4'b0011; // MVNZ: if (G != 0) [Rx] <- [Ry]
+	localparam MV = 4'b0100; // MV: Rx <- [Ry]
+	localparam MVI = 4'b0101; // MVI: Rx <- D
+	localparam ADD = 4'b0110; // ADD: Rx <- [Rx] + [Ry]
+	localparam SUB = 4'b0111; // SUB: Rx <- [Rx] - [Ry]
+	localparam OR = 4'b1000; // OR: Rx <- [Rx] || [Ry]
+	localparam SLT = 4'b1001; // SLT: if (Rx < Ry) [Rx] = 1; else [Rx] = 0;
+	localparam SLL = 4'b1010; // SLL: Rx = [Rx] << [Ry]
+	localparam SRL = 4'b1011; // SRL: Rx = [Rx] >> [Ry]
 
 	always @(posedge clock) begin
-		// Inicializa variáveis
+		// Inicializa variaveis
 		Ain = 0;
 		AddSub = 0;
 		Gout = 0;
@@ -132,7 +132,7 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 		case (Tstep_Q)
 			// Time step 0
 			timeStep0: begin
-				num_ciclos = num_ciclos + 1; // 1 ciclo para buscar instrução
+				num_ciclos = num_ciclos + 1; // Um ciclo para buscar instrucao
 			end
 
 			// Executa instrucoes - Time step 1
@@ -168,7 +168,7 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 
 					ADD, SUB, OR, SLT, SLL, SRL: begin
 						Rout = Xreg; // Coloca no BUS
-						Ain = 1; // Salva conteúdo do BUS no registrador A
+						Ain = 1; // Salva conteudo do BUS no registrador A
 					end
 				endcase
 			end
@@ -182,7 +182,7 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 
 					STORE: begin
 						wren = 1;
-						in = BUS; // TBD: adicionar o TLB
+						in = BUS;
 						Rout = Yreg;
 						DONE = 1;
 					end
@@ -267,8 +267,7 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 		end
 	end
 
-	// Ler instrução na ROM
-	rom reg_7 (PC, clock, R[7]);
+	rom reg_7 (PC, clock, R[7]); // Ler instrucao da ROM
 	
 	ram ramModule (BUS, clock, in, wren, out);
 	
@@ -281,7 +280,7 @@ module processor(SW, KEY, BUS, DONE, Tstep_Q, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 	regn reg_5 (BUS, Rin[5], clock, R[5]);
 	regn reg_6 (BUS, Rin[6], clock, R[6]);	
 
-	// Registradores do módulo Addsub e auxULA
+	// Registradores do modulo AddSub e auxULA
 	regn reg_A (BUS, Ain, clock, A);
 	regn reg_G (result, Gin, clock, G);
 	
